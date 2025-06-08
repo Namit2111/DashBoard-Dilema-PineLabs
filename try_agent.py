@@ -1,26 +1,22 @@
-from openai import OpenAI
-from pydantic import BaseModel
-from config.config import OPEN_AI_KEY
+from agent.agents import custom_agent
+from agent.prompt import intent_prompt, required_tables_prompt
+from agent.schema import IntentSchema, RequiredTablesSchema
+from utils.db_utils import get_all_schemas
 
-client = OpenAI(api_key=OPEN_AI_KEY)
 
-class CalendarEvent(BaseModel):
-    name: str
-    date: str
-    participants: list[str]
-
-response = client.responses.parse(
-    model="gpt-4o-2024-08-06",
-    input=[
-        {"role": "system", "content": "Extract the event information."},
-        {
-            "role": "user",
-            "content": "Alice and Bob are going to a science fair on Friday.",
-        },
-    ],
-    text_format=CalendarEvent,
+intent_agent = custom_agent(
+    system_prompt=intent_prompt,
+    user_query="what was the highest amount that was refunded",
+    response_model=IntentSchema,
 )
 
-event = response.output_parsed
+required_tables_agent = custom_agent(
+    system_prompt=required_tables_prompt.replace("{put_all_table_schemas_here}", str(get_all_schemas())),
+    user_query="what was the highest amount that was refunded",
+    response_model=RequiredTablesSchema,
+)
 
-print(event)
+
+
+# print(intent_agent)
+print(required_tables_agent)

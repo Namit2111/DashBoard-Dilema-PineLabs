@@ -5,7 +5,7 @@ from config.config import OPEN_AI_KEY
 
 client = OpenAI(api_key=OPEN_AI_KEY)
 
-def parse_response(
+def custom_agent(
     system_prompt: str,
     user_query: str,
     response_model: Type[BaseModel],
