@@ -13,6 +13,7 @@ A Slack bot that converts natural language questions into SQL queries and provid
 └── data/            # Data related files
 ```
 
+
 ## Setup and Installation
 
 1. Clone the repository:
