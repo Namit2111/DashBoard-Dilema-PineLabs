@@ -32,6 +32,11 @@ def get_column_names(table_name):
     schema = get_table_schema(table_name)
     return schema['name'].tolist()
 
+def get_colums_schema(table_name):
+    """Return the schema of a given columsn of a table."""
+    schema = get_table_schema(table_name)
+    return schema[['name', 'type']]
+
 
 def preview_table(table_name, limit=5):
     """Return the first N rows of a table."""
@@ -66,3 +71,30 @@ def get_all_schemas():
     for table in tables:
         all_schemas[table] = get_table_schema(table)
     return all_schemas
+
+
+def execute_query(query: str, fetch: bool = True):
+    """
+    Execute a SQL query. Fetch results if it's a SELECT query.
+
+    Args:
+        query (str): The SQL query to run.
+        fetch (bool): Whether to fetch and return data (for SELECT queries).
+
+    Returns:
+        pd.DataFrame if fetch is True and the query is SELECT; otherwise, None.
+    """
+    conn = connect()
+    try:
+        if fetch:
+            df = pd.read_sql(query, conn)
+            return df
+        else:
+            cursor = conn.cursor()
+            cursor.execute(query)
+            conn.commit()
+    except Exception as e:
+        print(f"Error running query: {e}")
+        raise
+    finally:
+        conn.close()
