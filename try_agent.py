@@ -6,12 +6,12 @@ from agent.schema import SQLQuerySchema
 import json
 
 
-# intent_agent = custom_agent(
-#     system_prompt=intent_prompt,
-#     user_query="how many transactio n failed ",
-#     response_model=IntentSchema,
-# )
-
+intent_agent = custom_agent(
+    system_prompt=intent_prompt,
+    user_query="how many transactio n failed ",
+    response_model=IntentSchema,
+)
+# if intent_agent.business: only then proceed to next agent else return the message from intent_agent
 required_tables_agent = custom_agent(
     system_prompt=required_tables_prompt.replace("{put_all_table_schemas_here}", str(get_all_schemas())),
     user_query="how many transactio n failed ",
