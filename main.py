@@ -6,7 +6,7 @@ from utils.db_utils import get_all_schemas, get_table_schema, execute_query, sum
 import json
 
 
-def run_nl_to_sql_pipeline(user_query: str) -> Union[str, InsightResponseSchema]:
+def run_nl_to_sql_pipeline(user_query: str,debug: bool = False) -> Union[str, InsightResponseSchema]:
     # 1. Intent Agent
     intent_agent = custom_agent(
         system_prompt=intent_prompt,
@@ -87,6 +87,14 @@ def run_nl_to_sql_pipeline(user_query: str) -> Union[str, InsightResponseSchema]
         user_query=user_query,
         response_model=InsightResponseSchema,
     )
+
+    if debug:
+        return (
+    f"*💡 Insight:*\n{insight_agent.insight}\n\n"
+    f"*🗂️ Tables Used:*\n```{', '.join(required_tables_agent.tables)}```\n\n"
+    f"*📑 Columns Used:*\n```{json.dumps([t.dict() for t in required_columns_agent.tables], indent=2)}```\n\n"
+    f"*🧠 Generated SQL Query:*\n```{query_gen_agent.query}```"
+)
 
     return insight_agent.insight
 
