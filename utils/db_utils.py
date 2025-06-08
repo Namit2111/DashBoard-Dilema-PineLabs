@@ -98,3 +98,35 @@ def execute_query(query: str, fetch: bool = True):
         raise
     finally:
         conn.close()
+
+
+def summarize_dataframe(df: pd.DataFrame, max_rows: int = 50) -> str:
+    """Return a summarized Markdown representation of a large DataFrame."""
+    summary = {
+        "columns": list(df.columns),
+        "num_rows": len(df),
+        "top_rows": df.head(5).to_markdown(index=False),
+        "summary_stats": df.describe(include='all').to_markdown()
+    }
+
+    return f"""
+# Summary of Large Dataset
+
+**Columns**: {summary['columns']}
+**Total Rows**: {summary['num_rows']}
+
+## Sample (First 5 Rows)
+{summary['top_rows']}
+
+## Descriptive Statistics
+{summary['summary_stats']}
+"""
+
+
+def get_distinct_column_values(table, column):
+    """Returns distinct values for a column from the table."""
+    conn = connect()
+    query = f"SELECT DISTINCT {column} FROM {table};"
+    result = pd.read_sql(query, conn)
+    conn.close()
+    return result[column].dropna().tolist()

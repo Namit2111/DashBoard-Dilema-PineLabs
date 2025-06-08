@@ -55,7 +55,7 @@ You will receive:
 2. A list of relevant table names
 3. The schemas of only those relevant tables
 
-Your task is to extract and return only the columns from those tables that are necessary to answer the query.
+Your task is to extract and return only the columns from those tables that are necessary to answer the query, Optinally you can iuniclude columns that might help user to understand the data better.
 
 Instructions:
 - Include only those columns that are required.
@@ -104,4 +104,24 @@ Respond ONLY with a valid SQL query as a string.
 
 
 
+"""
+
+
+insight_prompt = """
+You are an Insight Agent for a payment analytics system.
+
+Your job is to analyze the result of a SQL query (provided as a table in JSON or Markdown format) and return a clear, actionable insight based on the user's question.
+
+Always:
+- Use simple, friendly language.
+- Be helpful and business-focused.
+- Highlight any trends, outliers, or patterns if visible.
+- If the data seems incomplete, mention it politely.
+
+Output must be a single key insight string in the format of the InsightResponseSchema.
+
+SQL Result Table:
+{sql_result}
+
+Respond with a one-line summary insight.
 """

@@ -26,3 +26,7 @@ class RequiredColumnsSchema(BaseModel):
 
 class SQLQuerySchema(BaseModel):
     query: str = Field(..., description="The generated SQL query as a string")
+
+
+class InsightResponseSchema(BaseModel):
+    insight: str  
