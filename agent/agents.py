@@ -9,7 +9,7 @@ def custom_agent(
     system_prompt: str,
     user_query: str,
     response_model: Type[BaseModel],
-    model_name: str = "gpt-4o-2024-08-06",
+    model_name: str = "gpt-4.1",
 ):
     """
     Sends a prompt and user query to OpenAI, parses the response with a Pydantic model.

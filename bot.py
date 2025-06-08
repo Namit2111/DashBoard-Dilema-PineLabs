@@ -15,8 +15,12 @@ app = App(token=SLACK_BOT_TOKEN)
 @app.event("app_mention")
 def handle_mention(event, say):
     user = event["user"]
+    def progress(msg):
+        say(f"Progress: {msg}")
+
+    
     text = event.get("text", "")
-    result = run_nl_to_sql_pipeline(text,debug=True)
+    result = run_nl_to_sql_pipeline(text,debug=True,progress_callback=progress)
     # say(f"<@{user}> you said: `{text}`")
     say(f"<@{user}> The result is: \n\n{result}")
 
