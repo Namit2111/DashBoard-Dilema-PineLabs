@@ -5,3 +5,4 @@ python-dotenv
 tabulate 
 jinja2 
 python-multipart
+fastapi
