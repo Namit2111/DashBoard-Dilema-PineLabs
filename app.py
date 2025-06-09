@@ -7,8 +7,11 @@ from threading import Lock
 from datetime import datetime, timedelta
 import asyncio
 import logging
+import sqlite3
+import pandas as pd
 
 from pipeline import run_nl_to_sql_pipeline  # Update this import path
+from utils.db_utils import connect, run_query  # Add this import
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -91,6 +94,38 @@ async def monitor():
 @app.head("/ping")
 async def ping():
     return {"message": "pong"}
+
+
+@app.get("/tables")
+async def get_tables():
+    """
+    Get information about all tables in the database including their structure and sample data
+    """
+    try:
+        # Get list of all tables
+        tables_query = "SELECT name FROM sqlite_master WHERE type='table';"
+        tables_df = run_query(tables_query)
+        tables = tables_df['name'].tolist()
+        
+        result = {}
+        for table in tables:
+            # Get table schema
+            schema_query = f"PRAGMA table_info({table});"
+            schema_df = run_query(schema_query)
+            
+            # Get sample data (first 5 rows)
+            sample_query = f"SELECT * FROM {table} LIMIT 5;"
+            sample_df = run_query(sample_query)
+            
+            result[table] = {
+                "schema": schema_df.to_dict(orient='records'),
+                "sample_data": sample_df.to_dict(orient='records')
+            }
+            
+        return result
+    except Exception as e:
+        logger.error(f"Error getting table information: {str(e)}", exc_info=True)
+        return {"error": str(e)}
 
 
 if __name__ == "__main__":

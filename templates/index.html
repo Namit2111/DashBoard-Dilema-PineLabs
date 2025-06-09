@@ -222,8 +222,238 @@
       box-shadow: 0 10px 25px rgba(102, 126, 234, 0.4);
     }
 
-    .btn-primary:hover::before {
-      left: 100%;
+    .btn-secondary {
+      background: var(--primary-gradient);
+      border: none;
+      padding: 1rem 2.5rem;
+      border-radius: 50px;
+      color: white;
+      font-weight: 600;
+      font-size: 1.1rem;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      position: relative;
+      overflow: hidden;
+      min-width: 180px;
+    }
+
+    .btn-secondary::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
+      transition: left 0.5s;
+    }
+
+    .btn-secondary:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 10px 25px rgba(102, 126, 234, 0.4);
+    }
+
+    /* Modal Styles */
+    .modal-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.8);
+      backdrop-filter: blur(5px);
+      z-index: 10000;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      opacity: 0;
+      visibility: hidden;
+      transition: all 0.3s ease;
+    }
+
+    .modal-overlay.active {
+      opacity: 1;
+      visibility: visible;
+    }
+
+    .modal-content {
+      background: var(--card-bg);
+      backdrop-filter: blur(20px);
+      border: 1px solid var(--border-color);
+      border-radius: 24px;
+      box-shadow: var(--shadow-heavy);
+      max-width: 90vw;
+      max-height: 90vh;
+      width: 1000px;
+      overflow: hidden;
+      transform: scale(0.8) translateY(50px);
+      transition: all 0.3s ease;
+      position: relative;
+    }
+
+    .modal-overlay.active .modal-content {
+      transform: scale(1) translateY(0);
+    }
+
+    .modal-header {
+      background: var(--primary-gradient);
+      padding: 1.5rem 2rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .modal-title {
+      color: white;
+      font-size: 1.5rem;
+      font-weight: 700;
+      margin: 0;
+    }
+
+    .modal-close {
+      background: rgba(255, 255, 255, 0.2);
+      border: none;
+      color: white;
+      font-size: 1.5rem;
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .modal-close:hover {
+      background: rgba(255, 255, 255, 0.3);
+      transform: rotate(90deg);
+    }
+
+    .modal-body {
+      padding: 2rem;
+      max-height: 70vh;
+      overflow-y: auto;
+    }
+
+    .table-section {
+      margin-bottom: 2.5rem;
+      border: 1px solid rgba(102, 126, 234, 0.2);
+      border-radius: 16px;
+      overflow: hidden;
+      background: rgba(255, 255, 255, 0.5);
+    }
+
+    .table-header {
+      background: var(--primary-gradient);
+      color: white;
+      padding: 1rem 1.5rem;
+      font-weight: 600;
+      font-size: 1.1rem;
+    }
+
+    .schema-section {
+      padding: 1.5rem;
+      background: rgba(102, 126, 234, 0.05);
+    }
+
+    .schema-title {
+      color: var(--text-primary);
+      font-weight: 600;
+      margin-bottom: 1rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .schema-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 0.75rem;
+    }
+
+    .schema-item {
+      background: white;
+      padding: 0.75rem 1rem;
+      border-radius: 8px;
+      border-left: 3px solid #667eea;
+      font-family: 'Monaco', monospace;
+      font-size: 0.9rem;
+    }
+
+    .sample-section {
+      padding: 1.5rem;
+      max-height: 400px;
+      overflow-y: auto;
+    }
+
+    .sample-title {
+      color: var(--text-primary);
+      font-weight: 600;
+      margin-bottom: 1rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      position: sticky;
+      top: 0;
+      background: white;
+      padding: 0.5rem 0;
+      z-index: 1;
+    }
+
+    .data-table {
+      width: 100%;
+      border-collapse: collapse;
+      background: white;
+      border-radius: 8px;
+      overflow: hidden;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    }
+
+    .data-table th {
+      background: var(--primary-gradient);
+      color: white;
+      padding: 0.75rem;
+      text-align: left;
+      font-weight: 600;
+      font-size: 0.9rem;
+    }
+
+    .data-table td {
+      padding: 0.75rem;
+      border-bottom: 1px solid #eee;
+      font-size: 0.9rem;
+      color: var(--text-primary);
+    }
+
+    .data-table tr:last-child td {
+      border-bottom: none;
+    }
+
+    .data-table tr:nth-child(even) {
+      background: rgba(102, 126, 234, 0.02);
+    }
+
+    .loading-modal {
+      text-align: center;
+      padding: 3rem;
+    }
+
+    .loading-modal .loading-spinner {
+      display: inline-block;
+      width: 40px;
+      height: 40px;
+      border: 4px solid rgba(102, 126, 234, 0.2);
+      border-radius: 50%;
+      border-top-color: #667eea;
+      animation: spin 1s ease-in-out infinite;
+      margin-bottom: 1rem;
+    }
+
+    .error-message {
+      background: linear-gradient(135deg, rgba(245, 87, 108, 0.1), rgba(240, 147, 251, 0.1));
+      border: 1px solid rgba(245, 87, 108, 0.3);
+      border-radius: 12px;
+      padding: 1.5rem;
+      color: var(--text-primary);
+      text-align: center;
     }
 
     .result-section {
@@ -415,15 +645,20 @@
               id="user_query" 
               name="user_query" 
               rows="4" 
-              placeholder="Ask me anything about your data... ✨&#10;&#10;Examples:&#10;• How many failed transactions ?&#10;• Show me the top 5 customers by revenue&#10;• What's the average order value this quarter?"
+              placeholder="Ask me anything about your data... ✨&#10;&#10;Examples:&#10;• How many failed transactions occurred last month?&#10;• Show me the top 5 customers by revenue&#10;• What's the average order value this quarter?"
               required>{{ request.form.user_query or '' }}</textarea>
           </div>
           
           <div class="text-center">
-            <button type="submit" class="btn-primary" id="submitBtn">
-              <span class="loading-spinner" id="loadingSpinner"></span>
-              <i class="fas fa-rocket"></i> Generate SQL Magic
-            </button>
+            <div style="display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap;">
+              <button type="submit" class="btn-primary" id="submitBtn">
+                <span class="loading-spinner" id="loadingSpinner"></span>
+                <i class="fas fa-rocket"></i> Generate SQL Magic
+              </button>
+              <button type="button" class="btn-secondary" id="showTablesBtn">
+                <i class="fas fa-database"></i> View Sample Data
+              </button>
+            </div>
           </div>
         </form>
 
@@ -497,6 +732,26 @@
     </div>
   </div>
 
+  <!-- Tables Modal -->
+  <div class="modal-overlay" id="tablesModal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2 class="modal-title">
+          <i class="fas fa-database"></i> Database Schema & Sample Data
+        </h2>
+        <button class="modal-close" id="closeModal">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+      <div class="modal-body" id="modalBody">
+        <div class="loading-modal">
+          <div class="loading-spinner"></div>
+          <p>Loading database information...</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <script>
     // Enhanced form submission with loading states
     document.getElementById('queryForm').addEventListener('submit', function(e) {
@@ -506,6 +761,157 @@
       submitBtn.innerHTML = '<span class="loading-spinner" style="display: inline-block;"></span>Generating Magic...';
       submitBtn.disabled = true;
     });
+
+    // Modal functionality
+    const modal = document.getElementById('tablesModal');
+    const showTablesBtn = document.getElementById('showTablesBtn');
+    const closeModalBtn = document.getElementById('closeModal');
+    const modalBody = document.getElementById('modalBody');
+
+    showTablesBtn.addEventListener('click', async function() {
+      modal.classList.add('active');
+      document.body.style.overflow = 'hidden';
+      
+      // Reset modal body to loading state
+      modalBody.innerHTML = `
+        <div class="loading-modal">
+          <div class="loading-spinner"></div>
+          <p>Loading database information...</p>
+        </div>
+      `;
+      
+      try {
+        const response = await fetch('/tables');
+        const data = await response.json();
+        
+        if (data.error) {
+          throw new Error(data.error);
+        }
+        
+        displayTablesData(data);
+      } catch (error) {
+        modalBody.innerHTML = `
+          <div class="error-message">
+            <i class="fas fa-exclamation-triangle" style="font-size: 2rem; color: #f5576c; margin-bottom: 1rem;"></i>
+            <h3>Error Loading Data</h3>
+            <p>${error.message}</p>
+          </div>
+        `;
+      }
+    });
+
+    closeModalBtn.addEventListener('click', function() {
+      modal.classList.remove('active');
+      document.body.style.overflow = 'auto';
+    });
+
+    modal.addEventListener('click', function(e) {
+      if (e.target === modal) {
+        modal.classList.remove('active');
+        document.body.style.overflow = 'auto';
+      }
+    });
+
+    // ESC key to close modal
+    document.addEventListener('keydown', function(e) {
+      if (e.key === 'Escape' && modal.classList.contains('active')) {
+        modal.classList.remove('active');
+        document.body.style.overflow = 'auto';
+      }
+    });
+
+    function displayTablesData(data) {
+      let html = '';
+      
+      Object.keys(data).forEach(tableName => {
+        const tableData = data[tableName];
+        
+        html += `
+          <div class="table-section">
+            <div class="table-header">
+              <i class="fas fa-table"></i> ${tableName}
+            </div>
+            
+            <div class="schema-section">
+              <div class="schema-title">
+                <i class="fas fa-cogs"></i> Schema
+              </div>
+              <div class="schema-grid">
+        `;
+        
+        tableData.schema.forEach(column => {
+          const typeColor = getTypeColor(column.type);
+          html += `
+            <div class="schema-item" style="border-left-color: ${typeColor};">
+              <strong>${column.name}</strong><br>
+              <span style="color: ${typeColor}; font-weight: 600;">${column.type}</span>
+              ${column.pk ? '<span style="background: #667eea; color: white; padding: 2px 6px; border-radius: 4px; font-size: 0.7rem; margin-left: 0.5rem;">PK</span>' : ''}
+              ${column.notnull ? '<span style="background: #f093fb; color: white; padding: 2px 6px; border-radius: 4px; font-size: 0.7rem; margin-left: 0.5rem;">NOT NULL</span>' : ''}
+            </div>
+          `;
+        });
+        
+        html += `
+              </div>
+            </div>
+            
+            <div class="sample-section">
+              <div class="sample-title">
+                <i class="fas fa-eye"></i> Sample Data (First 5 rows)
+              </div>
+        `;
+        
+        if (tableData.sample_data && tableData.sample_data.length > 0) {
+          html += '<table class="data-table"><thead><tr>';
+          
+          // Table headers
+          Object.keys(tableData.sample_data[0]).forEach(header => {
+            html += `<th>${header}</th>`;
+          });
+          html += '</tr></thead><tbody>';
+          
+          // Table rows
+          tableData.sample_data.forEach(row => {
+            html += '<tr>';
+            Object.values(row).forEach(value => {
+              const displayValue = value === null ? '<em style="color: #999;">NULL</em>' : 
+                                 typeof value === 'string' && value.length > 50 ? 
+                                 value.substring(0, 50) + '...' : value;
+              html += `<td>${displayValue}</td>`;
+            });
+            html += '</tr>';
+          });
+          html += '</tbody></table>';
+        } else {
+          html += '<p style="color: #999; font-style: italic;">No sample data available</p>';
+        }
+        
+        html += '</div></div>';
+      });
+      
+      modalBody.innerHTML = html;
+    }
+
+    function getTypeColor(type) {
+      const typeColors = {
+        'INTEGER': '#4facfe',
+        'TEXT': '#f093fb',
+        'REAL': '#00f2fe',
+        'BLOB': '#f5576c',
+        'NUMERIC': '#667eea',
+        'VARCHAR': '#f093fb',
+        'DATETIME': '#764ba2',
+        'BOOLEAN': '#4facfe'
+      };
+      
+      const upperType = type.toUpperCase();
+      for (const [key, color] of Object.entries(typeColors)) {
+        if (upperType.includes(key)) {
+          return color;
+        }
+      }
+      return '#667eea'; // default color
+    }
 
     // Add floating animation to particles
     function createFloatingParticles() {
