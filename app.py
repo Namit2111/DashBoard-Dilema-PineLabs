@@ -62,7 +62,7 @@ async def monitor():
     }
 
 
-@app.get("/ping")
+@app.head("/ping")
 async def ping():
     return {"message": "pong"}
 
