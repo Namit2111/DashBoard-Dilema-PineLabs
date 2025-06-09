@@ -2,46 +2,573 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Natural Language to SQL</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AI SQL Query Generator</title>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
   <style>
-    body { font-family: sans-serif; margin: 2rem; }
-    textarea, input { width: 100%; margin-top: 1rem; padding: 0.5rem; font-size: 1rem; }
-    button { margin-top: 1rem; padding: 0.75rem 1.5rem; font-size: 1rem; background-color: #007bff; color: white; border: none; cursor: pointer; }
-    button:hover { background-color: #0056b3; }
-    .response { margin-top: 2rem; white-space: pre-wrap; background: #f1f1f1; padding: 1rem; border-radius: 8px; }
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    :root {
+      --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      --secondary-gradient: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+      --success-gradient: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+      --dark-bg: #0f0f23;
+      --card-bg: rgba(255, 255, 255, 0.95);
+      --glass-bg: rgba(255, 255, 255, 0.1);
+      --text-primary: #2d3748;
+      --text-secondary: #718096;
+      --border-color: rgba(255, 255, 255, 0.2);
+      --shadow-light: 0 8px 32px rgba(31, 38, 135, 0.37);
+      --shadow-heavy: 0 20px 60px rgba(0, 0, 0, 0.15);
+    }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: var(--dark-bg);
+      min-height: 100vh;
+      position: relative;
+      overflow-x: hidden;
+    }
+
+    /* Animated Background */
+    .bg-animation {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: -1;
+      background: linear-gradient(-45deg, #667eea, #764ba2, #f093fb, #f5576c);
+      background-size: 400% 400%;
+      animation: gradientShift 15s ease infinite;
+    }
+
+    .bg-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(15, 15, 35, 0.8);
+      z-index: -1;
+    }
+
+    /* Floating particles */
+    .particle {
+      position: absolute;
+      width: 4px;
+      height: 4px;
+      background: rgba(255, 255, 255, 0.5);
+      border-radius: 50%;
+      animation: float 6s ease-in-out infinite;
+    }
+
+    @keyframes gradientShift {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+
+    @keyframes float {
+      0%, 100% { transform: translateY(0px) rotate(0deg); opacity: 0; }
+      50% { transform: translateY(-100px) rotate(180deg); opacity: 1; }
+    }
+
+    @keyframes slideInUp {
+      from {
+        opacity: 0;
+        transform: translateY(30px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @keyframes pulse {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.05); }
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 2rem;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .main-card {
+      background: var(--card-bg);
+      backdrop-filter: blur(20px);
+      border: 1px solid var(--border-color);
+      border-radius: 24px;
+      box-shadow: var(--shadow-heavy);
+      overflow: hidden;
+      width: 100%;
+      max-width: 900px;
+      animation: slideInUp 0.8s ease-out;
+      position: relative;
+    }
+
+    .card-header {
+      background: var(--primary-gradient);
+      padding: 2.5rem 2rem;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .card-header::before {
+      content: '';
+      position: absolute;
+      top: -50%;
+      left: -50%;
+      width: 200%;
+      height: 200%;
+      background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+      animation: pulse 4s ease-in-out infinite;
+    }
+
+    .header-content {
+      position: relative;
+      z-index: 2;
+    }
+
+    .header-title {
+      color: white;
+      font-size: 2.5rem;
+      font-weight: 700;
+      margin-bottom: 0.5rem;
+      text-shadow: 0 4px 8px rgba(0,0,0,0.3);
+    }
+
+    .header-subtitle {
+      color: rgba(255, 255, 255, 0.9);
+      font-size: 1.1rem;
+      font-weight: 300;
+    }
+
+    .card-body {
+      padding: 3rem 2rem;
+    }
+
+    .form-group {
+      margin-bottom: 2rem;
+    }
+
+    .form-label {
+      display: block;
+      margin-bottom: 0.75rem;
+      font-weight: 600;
+      color: var(--text-primary);
+      font-size: 1.1rem;
+    }
+
+    .form-control {
+      width: 100%;
+      padding: 1.25rem 1.5rem;
+      border: 2px solid rgba(102, 126, 234, 0.2);
+      border-radius: 16px;
+      font-size: 1rem;
+      transition: all 0.3s ease;
+      background: rgba(255, 255, 255, 0.8);
+      backdrop-filter: blur(10px);
+      resize: none;
+      font-family: inherit;
+    }
+
+    .form-control:focus {
+      outline: none;
+      border-color: #667eea;
+      box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.1);
+      transform: translateY(-2px);
+    }
+
+    .btn-primary {
+      background: var(--primary-gradient);
+      border: none;
+      padding: 1rem 2.5rem;
+      border-radius: 50px;
+      color: white;
+      font-weight: 600;
+      font-size: 1.1rem;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      position: relative;
+      overflow: hidden;
+      min-width: 180px;
+    }
+
+    .btn-primary::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
+      transition: left 0.5s;
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 10px 25px rgba(102, 126, 234, 0.4);
+    }
+
+    .btn-primary:hover::before {
+      left: 100%;
+    }
+
+    .result-section {
+      margin-top: 2rem;
+      padding-top: 2rem;
+      border-top: 1px solid rgba(102, 126, 234, 0.2);
+      animation: slideInUp 0.6s ease-out;
+    }
+
+    .alert {
+      padding: 1.5rem;
+      border-radius: 16px;
+      margin-bottom: 1.5rem;
+      border: none;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .alert-success {
+      background: linear-gradient(135deg, rgba(79, 172, 254, 0.1), rgba(0, 242, 254, 0.1));
+      border-left: 4px solid #4facfe;
+      color: var(--text-primary);
+    }
+
+    .alert-info {
+      background: linear-gradient(135deg, rgba(240, 147, 251, 0.1), rgba(245, 87, 108, 0.1));
+      border-left: 4px solid #f093fb;
+      color: var(--text-primary);
+    }
+
+    .code-block {
+      background: rgba(15, 15, 35, 0.8);
+      border: 1px solid rgba(102, 126, 234, 0.3);
+      border-radius: 12px;
+      padding: 1.5rem;
+      margin: 1rem 0;
+      position: relative;
+      overflow-x: auto;
+    }
+
+    .code-block pre {
+      color: #e2e8f0;
+      margin: 0;
+      font-family: 'Fira Code', 'Monaco', monospace;
+      font-size: 0.9rem;
+      line-height: 1.6;
+      white-space: pre-wrap;
+      word-wrap: break-word;
+    }
+
+    .code-header {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      margin-bottom: 1rem;
+      font-weight: 600;
+      color: var(--text-primary);
+    }
+
+    .code-header i {
+      color: #667eea;
+    }
+
+    .tag-container {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      margin-top: 0.5rem;
+    }
+
+    .tag {
+      background: var(--primary-gradient);
+      color: white;
+      padding: 0.3rem 0.8rem;
+      border-radius: 20px;
+      font-size: 0.85rem;
+      font-weight: 500;
+    }
+
+    .loading-spinner {
+      display: none;
+      width: 20px;
+      height: 20px;
+      border: 2px solid rgba(255,255,255,0.3);
+      border-radius: 50%;
+      border-top-color: white;
+      animation: spin 1s ease-in-out infinite;
+      margin-right: 0.5rem;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    .feature-pills {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.75rem;
+      margin-top: 1.5rem;
+      justify-content: center;
+    }
+
+    .pill {
+      background: rgba(255, 255, 255, 0.1);
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      padding: 0.5rem 1rem;
+      border-radius: 25px;
+      color: rgba(255, 255, 255, 0.9);
+      font-size: 0.85rem;
+      font-weight: 500;
+    }
+
+    /* Responsive Design */
+    @media (max-width: 768px) {
+      .container {
+        padding: 1rem;
+      }
+      
+      .header-title {
+        font-size: 2rem;
+      }
+      
+      .card-body {
+        padding: 2rem 1.5rem;
+      }
+      
+      .btn-primary {
+        width: 100%;
+      }
+    }
+
+    /* Custom scrollbar */
+    ::-webkit-scrollbar {
+      width: 8px;
+    }
+
+    ::-webkit-scrollbar-track {
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 10px;
+    }
+
+    ::-webkit-scrollbar-thumb {
+      background: var(--primary-gradient);
+      border-radius: 10px;
+    }
+
+    ::-webkit-scrollbar-thumb:hover {
+      background: var(--secondary-gradient);
+    }
   </style>
 </head>
 <body>
-  <h1>🧠 Natural Language to SQL</h1>
-  <form method="post">
-    <label for="user_query">Enter your query:</label>
-    <textarea name="user_query" rows="4" required></textarea>
-    <button type="submit">Submit</button>
-  </form>
+  <div class="bg-animation"></div>
+  <div class="bg-overlay"></div>
+  
+  <!-- Floating particles -->
+  <div class="particle" style="top: 20%; left: 10%; animation-delay: 0s;"></div>
+  <div class="particle" style="top: 80%; left: 80%; animation-delay: 2s;"></div>
+  <div class="particle" style="top: 40%; left: 70%; animation-delay: 4s;"></div>
+  <div class="particle" style="top: 60%; left: 20%; animation-delay: 1s;"></div>
+  <div class="particle" style="top: 10%; left: 90%; animation-delay: 3s;"></div>
 
-  {% if response %}
-  <div class="response">
-    <h3>Response:</h3>
+  <div class="container">
+    <div class="main-card">
+      <div class="card-header">
+        <div class="header-content">
+          <h1 class="header-title">
+            <i class="fas fa-magic"></i> AI SQL Generator
+          </h1>
+          <p class="header-subtitle">Transform natural language into powerful SQL queries instantly</p>
+          <div class="feature-pills">
+            <div class="pill"><i class="fas fa-bolt"></i> Lightning Fast</div>
+            <div class="pill"><i class="fas fa-brain"></i> AI Powered</div>
+            <div class="pill"><i class="fas fa-shield-alt"></i> Secure</div>
+            <div class="pill"><i class="fas fa-chart-line"></i> Smart Analytics</div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="card-body">
+        <form method="post" action="/" id="queryForm">
+          <div class="form-group">
+            <label for="user_query" class="form-label">
+              <i class="fas fa-comment-dots"></i> What would you like to know?
+            </label>
+            <textarea 
+              class="form-control" 
+              id="user_query" 
+              name="user_query" 
+              rows="4" 
+              placeholder="Ask me anything about your data... ✨&#10;&#10;Examples:&#10;• How many failed transactions ?&#10;• Show me the top 5 customers by revenue&#10;• What's the average order value this quarter?"
+              required>{{ request.form.user_query or '' }}</textarea>
+          </div>
+          
+          <div class="text-center">
+            <button type="submit" class="btn-primary" id="submitBtn">
+              <span class="loading-spinner" id="loadingSpinner"></span>
+              <i class="fas fa-rocket"></i> Generate SQL Magic
+            </button>
+          </div>
+        </form>
 
-    {% if response.startswith("*💡 Insight:*") %}
-      {% set lines = response.splitlines() %}
+        {% if response is not none %}
+        <div class="result-section">
+          <h5 style="color: var(--text-primary); font-weight: 700; margin-bottom: 1.5rem;">
+            <i class="fas fa-sparkles" style="color: #667eea;"></i> Results
+          </h5>
+          
+          {% if response.insight %}
+            <div class="alert alert-success">
+              <div style="display: flex; align-items: flex-start; gap: 1rem;">
+                <i class="fas fa-lightbulb" style="color: #4facfe; font-size: 1.5rem; margin-top: 0.25rem;"></i>
+                <div>
+                  <strong style="color: #4facfe; font-size: 1.1rem;">💡 Key Insight</strong>
+                  <p style="margin: 0.5rem 0 0 0; line-height: 1.6;">{{ response.insight }}</p>
+                </div>
+              </div>
+            </div>
 
-      <p><strong>💡 Insight:</strong><br>
-      {{ lines[1] }}</p>
+            <div class="code-header">
+              <i class="fas fa-code"></i>
+              <span>Generated SQL Query</span>
+            </div>
+            <div class="code-block">
+              <pre>{{ response.query }}</pre>
+            </div>
 
-      <p><strong>🗂️ Tables Used:</strong><br>
-      <code>{{ lines[4].strip('`') }}</code></p>
+            <div class="code-header">
+              <i class="fas fa-table"></i>
+              <span>Tables Used</span>
+            </div>
+            <div class="tag-container">
+              {% for table in response.tables %}
+                <span class="tag">{{ table }}</span>
+              {% endfor %}
+            </div>
 
-      <p><strong>📑 Columns Used:</strong><br>
-      <pre style="white-space: pre-wrap;">{{ lines[7:-3]|join('\n')|safe }}</pre></p>
+            <div class="code-header" style="margin-top: 1.5rem;">
+              <i class="fas fa-columns"></i>
+              <span>Column Details</span>
+            </div>
+            <div class="code-block">
+              <pre>{{ response.columns }}</pre>
+            </div>
 
-      <p><strong>🧠 Generated SQL Query:</strong><br>
-      <pre><code>{{ lines[-1].strip('`') }}</code></pre></p>
-    {% else %}
-      <pre>{{ response }}</pre>
-    {% endif %}
+          {% elif response.answer %}
+            <div class="alert alert-info">
+              <div style="display: flex; align-items: flex-start; gap: 1rem;">
+                <i class="fas fa-info-circle" style="color: #f093fb; font-size: 1.5rem; margin-top: 0.25rem;"></i>
+                <div>
+                  <strong style="color: #f093fb; font-size: 1.1rem;">ℹ️ Response</strong>
+                  <p style="margin: 0.5rem 0 0 0; line-height: 1.6;">{{ response.answer }}</p>
+                </div>
+              </div>
+            </div>
+          {% else %}
+            <div class="alert alert-info">
+              <div class="code-header">
+                <i class="fas fa-file-code"></i>
+                <span>Raw Response</span>
+              </div>
+              <div class="code-block">
+                <pre>{{ response | tojson(indent=2) }}</pre>
+              </div>
+            </div>
+          {% endif %}
+        </div>
+        {% endif %}
+      </div>
+    </div>
   </div>
-{% endif %}
 
+  <script>
+    // Enhanced form submission with loading states
+    document.getElementById('queryForm').addEventListener('submit', function(e) {
+      const submitBtn = document.getElementById('submitBtn');
+      const spinner = document.getElementById('loadingSpinner');
+      
+      submitBtn.innerHTML = '<span class="loading-spinner" style="display: inline-block;"></span>Generating Magic...';
+      submitBtn.disabled = true;
+    });
+
+    // Add floating animation to particles
+    function createFloatingParticles() {
+      const particles = document.querySelectorAll('.particle');
+      particles.forEach((particle, index) => {
+        const randomDelay = Math.random() * 6;
+        const randomDuration = 4 + Math.random() * 4;
+        particle.style.animationDelay = randomDelay + 's';
+        particle.style.animationDuration = randomDuration + 's';
+      });
+    }
+
+    // Auto-resize textarea
+    document.getElementById('user_query').addEventListener('input', function() {
+      this.style.height = 'auto';
+      this.style.height = Math.min(this.scrollHeight, 200) + 'px';
+    });
+
+    // Add some interactive sparkle effects
+    document.addEventListener('mousemove', function(e) {
+      if (Math.random() > 0.98) {
+        createSparkle(e.clientX, e.clientY);
+      }
+    });
+
+    function createSparkle(x, y) {
+      const sparkle = document.createElement('div');
+      sparkle.style.position = 'fixed';
+      sparkle.style.left = x + 'px';
+      sparkle.style.top = y + 'px';
+      sparkle.style.width = '4px';
+      sparkle.style.height = '4px';
+      sparkle.style.background = 'rgba(255, 255, 255, 0.8)';
+      sparkle.style.borderRadius = '50%';
+      sparkle.style.pointerEvents = 'none';
+      sparkle.style.zIndex = '1000';
+      sparkle.style.animation = 'sparkleOut 1s ease-out forwards';
+      
+      document.body.appendChild(sparkle);
+      
+      setTimeout(() => {
+        sparkle.remove();
+      }, 1000);
+    }
+
+    // Add sparkle animation
+    const style = document.createElement('style');
+    style.textContent = `
+      @keyframes sparkleOut {
+        0% {
+          opacity: 1;
+          transform: scale(0) rotate(0deg);
+        }
+        100% {
+          opacity: 0;
+          transform: scale(1) rotate(180deg);
+        }
+      }
+    `;
+    document.head.appendChild(style);
+
+    // Initialize
+    createFloatingParticles();
+  </script>
 </body>
 </html>

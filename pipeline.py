@@ -22,7 +22,7 @@ def run_nl_to_sql_pipeline(user_query: str,debug: bool = False,progress_callback
 
     if not intent_agent.business:
         # If not business related, return the agent's message directly
-        return intent_agent.message
+        return {"answer":intent_agent.message}
 
     if progress_callback:
         progress_callback("Fetching tables...")
@@ -36,7 +36,7 @@ def run_nl_to_sql_pipeline(user_query: str,debug: bool = False,progress_callback
     )
 
     if not required_tables_agent.tables:
-        return "Sorry, no relevant tables found for your query."
+        return {"answer":"Sorry, no relevant tables found for your query."}
 
     if progress_callback:
         progress_callback("Fetching schemas for required tables...")
@@ -57,7 +57,7 @@ def run_nl_to_sql_pipeline(user_query: str,debug: bool = False,progress_callback
     )
 
     if not required_columns_agent.tables:
-        return "Sorry, no relevant columns found for your query."
+        return {"answer":"Sorry, no relevant columns found for your query."}
 
     required_columns_json = json.dumps([t.dict() for t in required_columns_agent.tables], indent=2)
 
@@ -92,7 +92,7 @@ def run_nl_to_sql_pipeline(user_query: str,debug: bool = False,progress_callback
     )
     
     if not query_gen_agent.query:
-        return "Sorry, I couldn't generate a SQL query for that."
+        return {"answer":"Sorry, I couldn't generate a SQL query for that."}
 
     if progress_callback:
         progress_callback("Executing SQL query...")
@@ -117,12 +117,7 @@ def run_nl_to_sql_pipeline(user_query: str,debug: bool = False,progress_callback
     )
 
     if debug:
-        return (
-    f"*💡 Insight:*\n{insight_agent.insight}\n\n"
-    f"*🗂️ Tables Used:*\n```{', '.join(required_tables_agent.tables)}```\n\n"
-    f"*📑 Columns Used:*\n```{json.dumps([t.dict() for t in required_columns_agent.tables], indent=2)}```\n\n"
-    f"*🧠 Generated SQL Query:*\n```{query_gen_agent.query}```"
-)
+        return {"insight":insight_agent.insight, "tables":required_tables_agent.tables, "columns":json.dumps([t.dict() for t in required_columns_agent.tables], indent=2), "query":query_gen_agent.query}
 
     return insight_agent.insight
 
