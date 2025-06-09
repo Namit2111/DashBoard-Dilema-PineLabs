@@ -54,3 +54,14 @@ async def process_query(request: Request, user_query: str = Form(...)):
         "response": response,
     })
 
+@app.get("/monitor")
+async def monitor():
+    return {
+        "agent_call_count": agent_call_count,
+        "reset_time": reset_time.isoformat(),
+    }
+
+
+@app.get("/ping")
+async def ping():
+    return {"message": "pong"}
