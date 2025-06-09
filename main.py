@@ -111,7 +111,7 @@ def run_nl_to_sql_pipeline(user_query: str,debug: bool = False,progress_callback
 
     # 9. Insight Agent to generate final response
     insight_agent = custom_agent(
-        system_prompt=insight_prompt.replace("{sql_result}", sql_result),
+        system_prompt=insight_prompt.replace("{sql_result}", sql_result).replace("{sql_query}", query_gen_agent.query),
         user_query=user_query,
         response_model=InsightResponseSchema,
     )
