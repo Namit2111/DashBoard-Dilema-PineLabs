@@ -8,3 +8,4 @@ python-multipart
 fastapi
 google-generativeai
 google-genai
+uvicorn
