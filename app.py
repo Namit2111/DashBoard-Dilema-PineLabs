@@ -1,0 +1,56 @@
+from fastapi import FastAPI, Request, Form
+from fastapi.responses import HTMLResponse
+from fastapi.templating import Jinja2Templates
+from fastapi.middleware.cors import CORSMiddleware
+from threading import Lock
+from datetime import datetime, timedelta
+import asyncio
+
+from pipeline import run_nl_to_sql_pipeline  # Update this import path
+
+app = FastAPI()
+templates = Jinja2Templates(directory="templates")
+
+# Global agent call control
+MAX_AGENT_CALLS_PER_MINUTE = 10
+agent_call_count = 0
+agent_call_lock = Lock()
+reset_time = datetime.utcnow() + timedelta(minutes=1)
+
+
+def allow_custom_agent_call():
+    global agent_call_count, reset_time
+    with agent_call_lock:
+        now = datetime.utcnow()
+        if now >= reset_time:
+            agent_call_count = 0
+            reset_time = now + timedelta(minutes=1)
+        if agent_call_count < MAX_AGENT_CALLS_PER_MINUTE:
+            agent_call_count += 1
+            return True
+        return False
+
+
+@app.get("/", response_class=HTMLResponse)
+async def get_form(request: Request):
+    return templates.TemplateResponse("index.html", {"request": request, "response": None})
+
+
+@app.post("/", response_class=HTMLResponse)
+async def process_query(request: Request, user_query: str = Form(...)):
+    if not allow_custom_agent_call():
+        return templates.TemplateResponse("index.html", {
+            "request": request,
+            "response": "❌ Too many requests. Please wait a moment and try again.",
+        })
+
+    try:
+        response = run_nl_to_sql_pipeline(user_query, debug=True)
+    except Exception as e:
+        response = f"❌ Error: {str(e)}"
+
+    return templates.TemplateResponse("index.html", {
+        "request": request,
+        "response": response,
+    })
+

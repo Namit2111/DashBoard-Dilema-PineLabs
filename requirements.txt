@@ -3,3 +3,5 @@ pandas==2.1.4
 slack-bolt
 python-dotenv
 tabulate 
+jinja2 
+python-multipart

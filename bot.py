@@ -2,7 +2,7 @@ import os
 from slack_bolt import App
 from slack_bolt.adapter.socket_mode import SocketModeHandler
 from config.config import SLACK_BOT_TOKEN, SLACK_APP_TOKEN
-from main import run_nl_to_sql_pipeline
+from pipeline import run_nl_to_sql_pipeline
 
 # Load your credentials
 SLACK_BOT_TOKEN = SLACK_BOT_TOKEN  # starts with xoxb-

@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Natural Language to SQL</title>
+  <style>
+    body { font-family: sans-serif; margin: 2rem; }
+    textarea, input { width: 100%; margin-top: 1rem; padding: 0.5rem; font-size: 1rem; }
+    button { margin-top: 1rem; padding: 0.75rem 1.5rem; font-size: 1rem; background-color: #007bff; color: white; border: none; cursor: pointer; }
+    button:hover { background-color: #0056b3; }
+    .response { margin-top: 2rem; white-space: pre-wrap; background: #f1f1f1; padding: 1rem; border-radius: 8px; }
+  </style>
+</head>
+<body>
+  <h1>🧠 Natural Language to SQL</h1>
+  <form method="post">
+    <label for="user_query">Enter your query:</label>
+    <textarea name="user_query" rows="4" required></textarea>
+    <button type="submit">Submit</button>
+  </form>
+
+  {% if response %}
+  <div class="response">
+    <h3>Response:</h3>
+
+    {% if response.startswith("*💡 Insight:*") %}
+      {% set lines = response.splitlines() %}
+
+      <p><strong>💡 Insight:</strong><br>
+      {{ lines[1] }}</p>
+
+      <p><strong>🗂️ Tables Used:</strong><br>
+      <code>{{ lines[4].strip('`') }}</code></p>
+
+      <p><strong>📑 Columns Used:</strong><br>
+      <pre style="white-space: pre-wrap;">{{ lines[7:-3]|join('\n')|safe }}</pre></p>
+
+      <p><strong>🧠 Generated SQL Query:</strong><br>
+      <pre><code>{{ lines[-1].strip('`') }}</code></pre></p>
+    {% else %}
+      <pre>{{ response }}</pre>
+    {% endif %}
+  </div>
+{% endif %}
+
+</body>
+</html>
