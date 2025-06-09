@@ -6,3 +6,5 @@ tabulate
 jinja2 
 python-multipart
 fastapi
+google-generativeai
+google-genai
